@@ -1,0 +1,8 @@
+.idea
+**/__pycache__
+**/*.pyc
+models/**/*.so
+models/**/*.o
+kitti/*.pickle
+train/log_v1/
+dataset/KITTI

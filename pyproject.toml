@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "frustum-pointnets"
+version = "0.1.0"
+description = ""
+authors = ["curt.k <curt.k@kakaocorp.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+mayavi = "^4.7.1"
+opencv-python = "^4.1.2"
+Pillow = "^6.2.1"
+PyQt5 = "^5.13.2"
+scipy = "^1.3.3"
+matplotlib = "^3.1.2"
+tensorflow-gpu = "1.14"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

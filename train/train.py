@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import os
 import sys
+import math
 import argparse
 import importlib
 import numpy as np
@@ -216,7 +217,7 @@ def train_one_epoch(sess, ops, train_writer):
     # Shuffle train samples
     train_idxs = np.arange(0, len(TRAIN_DATASET))
     np.random.shuffle(train_idxs)
-    num_batches = len(TRAIN_DATASET)/BATCH_SIZE
+    num_batches = math.floor(len(TRAIN_DATASET)/BATCH_SIZE)
 
     # To collect statistics
     total_correct = 0
