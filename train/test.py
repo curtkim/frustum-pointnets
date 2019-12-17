@@ -13,7 +13,8 @@ import argparse
 import importlib
 import numpy as np
 import tensorflow as tf
-import cPickle as pickle
+import pickle
+#import cPickle as pickle
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
@@ -107,9 +108,9 @@ def inference(sess, ops, pc, one_hot_vec, batch_size):
     heading_residuals = np.zeros((pc.shape[0], NUM_HEADING_BIN))
     size_logits = np.zeros((pc.shape[0], NUM_SIZE_CLUSTER))
     size_residuals = np.zeros((pc.shape[0], NUM_SIZE_CLUSTER, 3))
-    scores = np.zeros((pc.shape[0],)) # 3D box score 
-   
-    ep = ops['end_points'] 
+    scores = np.zeros((pc.shape[0],)) # 3D box score
+
+    ep = ops['end_points']
     for i in range(num_batches):
         feed_dict = {\
             ops['pointclouds_pl']: pc[i*batch_size:(i+1)*batch_size,...],
@@ -139,7 +140,7 @@ def inference(sess, ops, pc, one_hot_vec, batch_size):
         heading_prob = np.max(softmax(batch_heading_scores),1) # B
         size_prob = np.max(softmax(batch_size_scores),1) # B,
         batch_scores = np.log(mask_mean_prob) + np.log(heading_prob) + np.log(size_prob)
-        scores[i*batch_size:(i+1)*batch_size] = batch_scores 
+        scores[i*batch_size:(i+1)*batch_size] = batch_scores
         # Finished computing scores
 
     heading_cls = np.argmax(heading_logits, 1) # B
@@ -181,7 +182,7 @@ def write_detection_results(result_dir, id_list, type_list, box2d_list, center_l
         fout = open(pred_filename, 'w')
         for line in results[idx]:
             fout.write(line+'\n')
-        fout.close() 
+        fout.close()
 
 def fill_files(output_dir, to_fill_filename_list):
     ''' Create empty files if not exist for the filelist. '''
@@ -211,7 +212,7 @@ def test_from_rgb_detection(output_filename, result_dir=None):
     print(len(TEST_DATASET))
     batch_size = BATCH_SIZE
     num_batches = int((len(TEST_DATASET)+batch_size-1)/batch_size)
-    
+
     batch_data_to_feed = np.zeros((batch_size, NUM_POINT, NUM_CHANNEL))
     batch_one_hot_to_feed = np.zeros((batch_size, 3))
     sess, ops = get_session_and_ops(batch_size=batch_size, num_point=NUM_POINT)
@@ -227,25 +228,25 @@ def test_from_rgb_detection(output_filename, result_dir=None):
         batch_data_to_feed[0:cur_batch_size,...] = batch_data
         batch_one_hot_to_feed[0:cur_batch_size,:] = batch_one_hot_vec
 
-        # Run one batch inference
-	batch_output, batch_center_pred, \
+    # Run one batch inference
+    batch_output, batch_center_pred, \
         batch_hclass_pred, batch_hres_pred, \
         batch_sclass_pred, batch_sres_pred, batch_scores = \
             inference(sess, ops, batch_data_to_feed,
                 batch_one_hot_to_feed, batch_size=batch_size)
-	
-        for i in range(cur_batch_size):
-            ps_list.append(batch_data[i,...])
-            segp_list.append(batch_output[i,...])
-            center_list.append(batch_center_pred[i,:])
-            heading_cls_list.append(batch_hclass_pred[i])
-            heading_res_list.append(batch_hres_pred[i])
-            size_cls_list.append(batch_sclass_pred[i])
-            size_res_list.append(batch_sres_pred[i,:])
-            rot_angle_list.append(batch_rot_angle[i])
-            #score_list.append(batch_scores[i])
-            score_list.append(batch_rgb_prob[i]) # 2D RGB detection score
-            onehot_list.append(batch_one_hot_vec[i])
+
+    for i in range(cur_batch_size):
+        ps_list.append(batch_data[i,...])
+        segp_list.append(batch_output[i,...])
+        center_list.append(batch_center_pred[i,:])
+        heading_cls_list.append(batch_hclass_pred[i])
+        heading_res_list.append(batch_hres_pred[i])
+        size_cls_list.append(batch_sclass_pred[i])
+        size_res_list.append(batch_sres_pred[i,:])
+        rot_angle_list.append(batch_rot_angle[i])
+        #score_list.append(batch_scores[i])
+        score_list.append(batch_rgb_prob[i]) # 2D RGB detection score
+        onehot_list.append(batch_one_hot_vec[i])
 
     if FLAGS.dump_result:
         with open(output_filename, 'wp') as fp:
@@ -307,25 +308,25 @@ def test(output_filename, result_dir=None):
             get_batch(TEST_DATASET, test_idxs, start_idx, end_idx,
                 NUM_POINT, NUM_CHANNEL)
 
-	batch_output, batch_center_pred, \
+    batch_output, batch_center_pred, \
         batch_hclass_pred, batch_hres_pred, \
         batch_sclass_pred, batch_sres_pred, batch_scores = \
             inference(sess, ops, batch_data,
                 batch_one_hot_vec, batch_size=batch_size)
 
-        correct_cnt += np.sum(batch_output==batch_label)
-	
-        for i in range(batch_output.shape[0]):
-            ps_list.append(batch_data[i,...])
-            seg_list.append(batch_label[i,...])
-            segp_list.append(batch_output[i,...])
-            center_list.append(batch_center_pred[i,:])
-            heading_cls_list.append(batch_hclass_pred[i])
-            heading_res_list.append(batch_hres_pred[i])
-            size_cls_list.append(batch_sclass_pred[i])
-            size_res_list.append(batch_sres_pred[i,:])
-            rot_angle_list.append(batch_rot_angle[i])
-            score_list.append(batch_scores[i])
+    correct_cnt += np.sum(batch_output==batch_label)
+
+    for i in range(batch_output.shape[0]):
+        ps_list.append(batch_data[i,...])
+        seg_list.append(batch_label[i,...])
+        segp_list.append(batch_output[i,...])
+        center_list.append(batch_center_pred[i,:])
+        heading_cls_list.append(batch_hclass_pred[i])
+        heading_res_list.append(batch_hres_pred[i])
+        size_cls_list.append(batch_sclass_pred[i])
+        size_res_list.append(batch_sres_pred[i,:])
+        rot_angle_list.append(batch_rot_angle[i])
+        score_list.append(batch_scores[i])
 
     print("Segmentation accuracy: %f" % \
         (correct_cnt / float(batch_size*num_batches*NUM_POINT)))

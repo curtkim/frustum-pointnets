@@ -293,7 +293,8 @@ def eval_one_epoch(sess, ops, test_writer):
     log_string(str(datetime.now()))
     log_string('---- EPOCH %03d EVALUATION ----'%(EPOCH_CNT))
     test_idxs = np.arange(0, len(TEST_DATASET))
-    num_batches = len(TEST_DATASET)/BATCH_SIZE
+    #num_batches = len(TEST_DATASET)/BATCH_SIZE
+    num_batches = math.floor(len(TEST_DATASET) / BATCH_SIZE)
 
     # To collect statistics
     total_correct = 0
